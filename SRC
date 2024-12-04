@@ -1,0 +1,125 @@
+CREATE DATABASE empresasoftware ;
+USE empresasoftware ;
+
+CREATE TABLE funcionarios (
+id_funcionario INT AUTO_INCREMENT PRIMARY KEY ,
+nome_funcionario VARCHAR (100) ,
+cargo_funcionario VARCHAR (100) , 
+salario_funcionario DECIMAL (10,2)
+);
+
+INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, salario_funcionario) VALUES
+('Alice Silva', 'Desenvolvedor', 4500.00),
+('Bruno Oliveira', 'Analista', 5000.00),
+('Carla Mendes', 'Gerente', 7000.00),
+('Daniel Souza', 'Desenvolvedor', 4600.00),
+('Eduardo Lima', 'Testador', 4000.00),
+('Fernanda Torres', 'Designer', 4800.00),
+('Gustavo Almeida', 'Gerente', 7100.00),
+('Helena Martins', 'Analista', 5200.00),
+('Isabela Rocha', 'Testador', 3900.00),
+('João Pereira', 'Desenvolvedor', 4700.00);
+
+CREATE TABLE projetos (
+id_projeto INT AUTO_INCREMENT PRIMARY KEY ,
+nome_projeto VARCHAR (100) ,
+id_gerente INT 
+);
+
+INSERT INTO projetos (nome_projeto, id_gerente) VALUES
+('Sistema de Vendas', 3),
+('Plataforma EAD', 7),
+('Aplicativo Mobile', 3),
+('Ferramenta de Gestão', 7),
+('Sistema Financeiro', 3);
+
+CREATE TABLE tarefas (
+id_tarefa INT AUTO_INCREMENT PRIMARY KEY , 
+id_projeto INT ,
+descricao_tarefa VARCHAR (255) ,
+status_tarefa VARCHAR (50)
+);
+
+INSERT INTO tarefas (id_projeto, descricao_tarefa, status_tarefa) VALUES
+(1, 'Desenvolver API', 'Concluída'),
+(1, 'Criar interface', 'Em andamento'),
+(1, 'Testar integração', 'Pendente'),
+(2, 'Planejar arquitetura', 'Concluída'),
+(2, 'Desenvolver módulos', 'Em andamento'),
+(2, 'Testar sistema', 'Pendente'),
+(3, 'Configurar backend', 'Concluída'),
+(3, 'Criar protótipo', 'Em andamento'),
+(3, 'Ajustar layout', 'Pendente'),
+(4, 'Elaborar requisitos', 'Concluída'),
+(4, 'Desenvolver funcionalidade', 'Em andamento'),
+(4, 'Realizar testes', 'Pendente'),
+(5, 'Implementar segurança', 'Concluída'),
+(5, 'Criar relatórios', 'Em andamento'),
+(5, 'Finalizar documentação', 'Pendente');
+
+CREATE TABLE alocacaos (
+id_alocacao INT AUTO_INCREMENT PRIMARY KEY ,
+id_funcionario INT ,
+id_tarefa INT ,
+hora_trabalhada DECIMAL (5,2)
+);
+
+INSERT INTO alocacaos (id_funcionario, id_tarefa, hora_trabalhada) VALUES
+(1, 1, 10.5),
+(2, 2, 15.0),
+(3, 3, 8.0),
+(4, 4, 12.0),
+(5, 5, 14.5),
+(6, 6, 10.0),
+(7, 7, 9.0),
+(8, 8, 13.0),
+(9, 9, 11.0),
+(10, 10, 7.5),
+(1, 11, 8.5),
+(2, 12, 9.0),
+(3, 13, 6.0),
+(4, 14, 7.0),
+(5, 15, 10.0) ;
+
+ ## funcionários e horas trabalhadas em cada projeto
+ SELECT 
+    a.id_funcionario, 
+    f.nome_funcionario AS funcionario, 
+    t.id_projeto, 
+    p.nome_projeto, 
+    SUM(a.hora_trabalhada) AS horas_totais
+FROM alocacaos a
+JOIN funcionarios f ON a.id_funcionario = f.id_funcionario
+JOIN tarefas t ON a.id_tarefa = t.id_tarefa
+JOIN projetos p ON t.id_projeto = p.id_projeto
+GROUP BY a.id_funcionario, t.id_projeto;
+
+## status das tarefas de um projeto específico.
+SELECT 
+    t.id_tarefa,
+    t.descricao_tarefa,
+    t.status_tarefa
+FROM 
+    tarefas t
+WHERE 
+    t.id_projeto = 1; -- substitua 1 pelo ID do projeto desejado
+
+
+## projetos com maior alocação de horas
+
+SELECT 
+    p.id_projeto,
+    p.nome_projeto,
+    SUM(a.hora_trabalhada) AS total_horas_alocadas
+FROM 
+    projetos p
+JOIN 
+    tarefas t ON p.id_projeto = t.id_projeto
+JOIN 
+    alocacaos a ON t.id_tarefa = a.id_tarefa
+GROUP BY 
+    p.id_projeto, p.nome_projeto
+ORDER BY 
+    total_horas_alocadas DESC;
+
+
